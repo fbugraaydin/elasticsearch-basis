@@ -1,0 +1,284 @@
+#Analyzers
+
+POST _analyze
+{
+  "tokenizer": "standard",
+  "filter": ["lowercase","asciifolding"],
+  "text": "Ağaç mağaç"
+}
+
+POST _analyze
+{
+  "text": "I like, ES"
+}
+
+POST _analyze
+{
+  "analyzer":"whitespace",
+  "text": "I like, ES"
+}
+
+# Auto-complete Query
+
+DELETE name
+
+PUT name
+{
+  "mappings": {
+    "properties": {
+      "suggest": {
+        "type": "completion"
+      },
+      "name": {
+        "type": "text"
+      }
+    }
+  }
+}
+
+PUT name/_doc/1
+{
+  "name":"Ali",
+  "suggest": {
+    "input": ["Ali"]
+  }
+}
+
+PUT name/_doc/2
+{
+  "name":"Alya",
+  "suggest": {
+    "input": ["Alya"]
+  }
+}
+
+
+PUT name/_doc/3
+{
+  "name":"Alo",
+  "suggest": {
+    "input": ["Alo"]
+  }
+}
+
+
+POST name/_search?pretty
+{
+  "suggest": {
+    "name-suggest": {
+      "prefix": "Al",
+      "completion": {
+        "field": "suggest"
+      }
+    }
+  }
+}
+
+
+# Fuzzy Searching
+
+#Without Fuzzy
+GET name/_search
+{
+  "query":{
+    "match": {
+      "name": "Tlya"
+    }
+  }
+}
+
+#With Fuzzy
+GET name/_search
+{
+  "query":{
+    "match": {
+      "name": {
+        "query":"Tlya",
+        "fuzziness": 1
+      }
+    }
+  }
+}
+
+GET name/_search
+{
+  "query":{
+    "match": {
+      "name": {
+        "query":"lAya",
+        "fuzziness": 1,
+        "fuzzy_transpositions": "false"
+      }
+    }
+  }
+}
+
+GET name/_search
+{
+  "query":{
+    "match": {
+      "name": {
+        "query": "Klm",
+        "fuzziness": 2
+      }
+    }
+  }
+}
+
+#Scenario - 1. Defining Settings & Mappings
+
+DELETE /product
+
+GET /product
+
+PUT /product
+{
+  "settings":{
+    "analysis": {
+      "analyzer":{
+        "folding_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter":[
+            "lowercase",
+            "asciifolding"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {
+        "type" : "long"
+      },
+      "title": {
+        "type" : "text",
+        "analyzer": "folding_analyzer"
+      },
+      "image": {
+        "type": "text"
+      },
+      "price": {
+        "type": "double"
+      },
+      "suggest": {
+        "type": "completion"
+      }
+    }
+  }
+}
+
+#Scenario - 2. Defining Data
+PUT product/_doc/1
+{
+  "id": 1,
+  "title": "Iphone 12 Mini 64 GB",
+  "image": "https://productimages.hepsiburada.net/s/76/550/110000018213526.jpg/format:webp",
+  "price": 11340,
+  "suggest": {
+    "input": ["Iphone 12 Mini 64 GB"]
+  }
+}
+
+PUT product/_doc/2
+{
+  "id": 2,
+  "title": "Iphone 12 Mini 128 GB",
+  "image": "https://productimages.hepsiburada.net/s/76/550/110000018213526.jpg/format:webp",
+  "price": 13200,
+  "suggest": {
+    "input": ["Iphone 12 Mini 128 GB"]
+  }
+}
+
+PUT product/_doc/3
+{
+  "id": 3,
+  "title": "Iphone 13 Pro, 128 GB",
+  "image": "https://productimages.hepsiburada.net/s/119/550/110000068435138.jpg/format:webp",
+  "price": 20950,
+  "suggest": {
+    "input": ["Iphone 13 Pro, 128 GB"]
+  }
+}
+
+
+#Scenario - 3. Search / Simple Query
+
+POST product/_search?pretty
+{
+  "query":{
+    "match": {
+      "title": "Iphone"
+    }
+  }
+}
+
+#Scenario - 3. Search / Complicated Query
+
+POST product/_search?pretty
+{
+  "query":{
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "title": "Iphone"
+          }
+        },
+        {
+          "range": {
+            "price":{
+              "gte": 10000,
+              "lte": 14000
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+# Scenario - 4. Auto-complete
+
+POST product/_search?pretty
+{
+  "suggest": {
+    "title-suggest": {
+      "prefix": "Iphone 12 Mini",
+      "completion": {
+        "field": "suggest"
+      }
+    }
+  }
+}
+
+# Scenario - 5. Fuzzy Searching
+
+GET product/_search
+{
+  "query":{
+    "match": {
+      "title": {
+        "query":"kkhone",
+        "fuzziness": "AUTO"
+      }
+    }
+  }
+}
+
+GET product/_search
+{
+  "query":{
+    "match": {
+      "title": {
+        "query":"Ihpone",
+        "fuzziness": "2",
+        "fuzzy_transpositions": "false"
+      }
+    }
+  }
+}
+
+
