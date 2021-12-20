@@ -37,9 +37,9 @@ Project runs on default port :8080.
 - To connect ElasticSearch: http://localhost:9200
 
 ## Documentation
-- To understand ELK stack and ElasticSearch features in detail, you can look at prepared documentation [ElasticSearch](ElasticSearch.pdf)
-- To apply capabilities of ElasticSearch, you can look at prepared commands in [Commands](basis-commands.json)
-
+- To understand ELK stack and ElasticSearch features in detail, you can look at prepared documentation [elasticsearch.pdf](ElasticSearch.pdf)
+- To apply capabilities of ElasticSearch, you can look at prepared commands in [commands.json](basis-commands.json)
+- If you use postman, you can import [postman_collection.json](ElasticSearchBasis.postman_collection.json) 
 
 ## Licence
 Developed by © [Fuat Buğra AYDIN](https://www.linkedin.com/in/fuatbugraaydin/)
