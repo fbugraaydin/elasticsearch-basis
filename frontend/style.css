@@ -1,0 +1,11 @@
+.products-content{
+    float:right;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: 0.25rem;
+    max-height: 600px;
+    overflow: scroll
+}
+
+.product-detail-content{
+    float:right;
+}

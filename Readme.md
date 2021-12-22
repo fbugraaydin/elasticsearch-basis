@@ -35,6 +35,11 @@ Project runs on default port :8080.
 - To connect h2 database: http://localhost:8080/h2-console/
 - To connect Kibana: http://localhost:5601
 - To connect ElasticSearch: http://localhost:9200
+- To run UI, open index.html in frontend folder in a browser. 
+
+## Screenshots
+
+![Shopi](frontend-screenshot.png?raw=true)
 
 ## Documentation
 - To understand ELK stack and ElasticSearch features in detail, you can look at prepared documentation [elasticsearch.pdf](ElasticSearch.pdf)
