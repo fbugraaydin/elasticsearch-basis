@@ -62,7 +62,8 @@ class ProductService(
 
     fun getAll(): List<ProductDto> {
         return productRepository.findAll().map {
-            productMapper.convertToDto(it) }
+            productMapper.convertToDto(it)
+        }
     }
 
     private fun isProductExist(id: Long): Product = productRepository.findById(id).orElseThrow {
@@ -79,19 +80,25 @@ class ProductSearchService(
 ) {
 
     fun search(query: String): List<ProductFilterDto> {
+        val matchQuery = QueryBuilders.matchQuery("title", query)
+        matchQuery.queryName(query)
+        matchQuery.fuzziness("AUTO")
+        matchQuery.fuzzyTranspositions(true)
+
         val searchQueryBuilder = SearchSourceBuilder()
+        searchQueryBuilder.query(matchQuery)
 
         val searchRequest = SearchRequest(indexName)
         searchRequest.source(searchQueryBuilder)
 
         val response = client.search(searchRequest, RequestOptions.DEFAULT)
         return response.hits.map {
-            val result:ProductFilterDto = objectMapper.readValue(it.sourceAsString)
+            val result: ProductFilterDto = objectMapper.readValue(it.sourceAsString)
             result
         }
     }
 
-    fun filter(request: ProductFilterRequest, page: Int, limit: Int): List<ProductFilterDto> {
+    fun filter(request: ProductFilterRequest, page: Int?, limit: Int?): List<ProductFilterDto> {
         val searchSourceBuilder = SearchSourceBuilder()
         val query = searchSourceBuilder.query(productFilterQueryBuilder.build(request))
 
@@ -101,15 +108,18 @@ class ProductSearchService(
                     .order(request.sortOrder)
             )
         }
-        query.from(page * limit)
-        query.size(limit)
+
+        if (page != null && limit != null) {
+            query.from(page * limit)
+            query.size(limit)
+        }
 
         val searchRequest = SearchRequest(indexName)
         searchRequest.source(searchSourceBuilder)
 
         val response = client.search(searchRequest, RequestOptions.DEFAULT)
         return response.hits.map {
-            val result:ProductFilterDto = objectMapper.readValue(it.sourceAsString)
+            val result: ProductFilterDto = objectMapper.readValue(it.sourceAsString)
             result
         }
     }
