@@ -23,7 +23,7 @@ class ProductController(
     fun search(@RequestParam query: String): List<ProductFilterDto> = productSearchService.search(query)
 
     @PostMapping("/filter")
-    fun filter(@RequestBody request: ProductFilterRequest, @RequestParam page: Int, @RequestParam limit: Int) =
+    fun filter(@RequestBody request: ProductFilterRequest, @RequestParam(required=false) page: Int?, @RequestParam(required=false) limit: Int?) =
         productSearchService.filter(request, page, limit)
 
     @PostMapping
