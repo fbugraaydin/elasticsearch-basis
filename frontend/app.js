@@ -5,11 +5,22 @@ $(document).ready(function () {
     minimumFractionDigits: 2,
   });
 
-  $.ajax('http://localhost:8080/products', {
-      success: function (data, status, xhr) {
-        printProducts(data);
-      }
-  });
+  let filterProducts = function (request) {
+    $("#products-content").show()
+    $("#product-detail-content").hide()
+    $.ajax({
+      type: 'POST',
+      url: 'http://localhost:8080/products/filter',
+      data: JSON.stringify(request),
+      success: function (response) {
+        printProducts(response)
+      },
+      contentType: "application/json",
+      dataType: 'json'
+    });
+  }
+
+  filterProducts({})
 
   $("#search-button").click(function () {
     const query = $("#search").val()
@@ -28,30 +39,20 @@ $(document).ready(function () {
     const request = {
       "sortOrder": sortOrder
     }
-    if(minPrice != null && minPrice != "" && !Number.isNaN(minPrice)){
+    if(minPrice != null && minPrice !== "" && !Number.isNaN(minPrice)){
       request.minPrice = parseInt(minPrice)
     }
-    if(maxPrice != null && maxPrice != "" && !Number.isNaN(minPrice)){
+    if(maxPrice != null && maxPrice !== "" && !Number.isNaN(minPrice)){
       request.maxPrice = parseInt(maxPrice)
     }
-    if(title != null && title != ""){
+    if(title != null && title !== ""){
       request.title = title
     }
-    
-    $.ajax({
-      type: 'POST',
-      url: 'http://localhost:8080/products/filter',
-      data: JSON.stringify(request),
-      success: function(data) { 
-        printProducts(data) 
-      },
-      contentType: "application/json",
-      dataType: 'json'
-    });
 
+    filterProducts(request)
   });
 
-  getProductDetail = function(id){
+  getProductDetail = function (id) {
     $("#products-content").hide()
     $("#product-detail-content").show()
     $.ajax('http://localhost:8080/products/' + id, {
@@ -61,6 +62,7 @@ $(document).ready(function () {
         $("#card-detail-price").text(formattedOutput.format(data.price))
         $("#card-detail-seller").text(data.seller)
         $("#card-detail-rate").text(data.rate)
+        $("#card-detail-image").attr("src",data.image)
       }
     });
   }
@@ -89,6 +91,5 @@ $(document).ready(function () {
       $('#products-content').append(product);
     });
   }
-
 
 });
